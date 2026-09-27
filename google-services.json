@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "621835105918",
+    "project_id": "yug-adda",
+    "storage_bucket": "yug-adda.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:621835105918:android:83c02a99c29326fd00ca2f",
+        "android_client_info": {
+          "package_name": "Com.Yugshanti.YugAdda"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGMW_OEIs4SSVv3IpdcTSv9Tyy4hhgx_0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
