@@ -209,20 +209,53 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
 Widget build(BuildContext context) {
-  return PopScope(
-    canPop: selectedIndex == 0,
-    onPopInvokedWithResult: (didPop, result) {
-      if (didPop) return;
+  return Scaffold(
+    body: SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(
+                Icons.forum_rounded,
+                size: 85,
+                color: Colors.deepPurple,
+              ),
 
-      if (selectedIndex != 0) {
-        setState(() {
-          selectedIndex = 0;
-        });
-      }
-    },
-    child: Scaffold(
-            key: _formKey,
-            child: Column(
+              const SizedBox(height: 20),
+
+              Text(
+                isLogin ? 'Welcome Back!' : 'Create Account',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                isLogin
+                    ? 'Login to continue to Yug Adda'
+                    : 'Join the Yug Adda community',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.grey),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Keep the existing login/signup TextFormField,
+              // button, and toggle widgets here.
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Icon(
@@ -821,7 +854,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       body: selectedPage(),
-    ),
     );
-    }
-    }
+  }
+}
