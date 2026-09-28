@@ -22,7 +22,10 @@ jobs:
           cache: true
 
       - name: Generate Android platform
-        run: flutter create --platforms=android .
+        run: >
+          flutter create --platforms=android
+          --org com.yugshanti
+          --project-name yugadda .
 
       - name: Configure Android Permissions
         run: |
