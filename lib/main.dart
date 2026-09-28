@@ -3,44 +3,23 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
   
-  void main() async {
-    
-  WidgetsFlutterBinding.ensureInitialized()
-    ;
+  
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-    try {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
-  runApp(const YugAddaApp());
+    runApp(const YugAddaApp());
 
-} catch (e, stackTrace) {
-   debugPrint(e.toString());
-   debugPrintStack(stackTrace: 
-stackTrace);
-}
-     runApp(
-       MaterialApp(
-         debugShowCheckedModeBanner: 
-false,
-         home: Scaffold(
-           backgroundColor: Colors.white,
-           body: Center(
-             child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(
-                'Firebase Initialization Failed\n\n$e',
-textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+  } catch (e, stackTrace) {
+    debugPrint('Firebase Error: $e');
+    debugPrintStack(stackTrace: stackTrace);
+
+    runApp(
+      StartupErrorApp(error: e.toString()),
     );
   }
 }
