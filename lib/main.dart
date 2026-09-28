@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+  
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
     await Firebase.initializeApp();
-
     runApp(const YugAddaApp());
-  } catch (e) {
+  } catch (e, stackTrace) {
+    debugPrint('Firebase initialization failed: $e');
+    debugPrintStack(stackTrace: stackTrace);
+
     runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -19,7 +22,7 @@ void main() async {
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
-                'Firebase Initialization Failed:\n\n$e',
+                'Firebase Initialization Failed\n\n$e',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.red,
@@ -31,12 +34,6 @@ void main() async {
         ),
       ),
     );
-  }
-}
-  } catch (e, stackTrace) {
-    debugPrint('Firebase initialization failed: $e');
-    debugPrintStack(stackTrace: stackTrace);
-    runApp(StartupErrorApp(error: e.toString()));
   }
 }
 
