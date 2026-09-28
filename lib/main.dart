@@ -208,21 +208,19 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        centerTitle: true,
-        title: const Text(
-          'Yug Adda',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
+Widget build(BuildContext context) {
+  return PopScope(
+    canPop: selectedIndex == 0,
+    onPopInvokedWithResult: (didPop, result) {
+      if (didPop) return;
+
+      if (selectedIndex != 0) {
+        setState(() {
+          selectedIndex = 0;
+        });
+      }
+    },
+    child: Scaffold(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -823,6 +821,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       body: selectedPage(),
+    ),
     );
-  }
-}
+    }
+    }
