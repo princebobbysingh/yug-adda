@@ -23,6 +23,31 @@ jobs:
 
       - name: Generate Android platform
         run: flutter create --platforms=android .
+        
+      - name: Configure Android Permissions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          content = manifest.read_text()
+
+          permissions = """
+              <uses-permission android:name="android.permission.CAMERA"/>
+              <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+              <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+              <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+              <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+              <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+              <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+          """
+
+          if "android.permission.CAMERA" not in content:
+              content = content.replace("<application", permissions + "\n    <application", 1)
+
+          manifest.write_text(content)
+          print("Android permissions configured successfully.")
+          PY
 
       - name: Configure Firebase
         run: |
