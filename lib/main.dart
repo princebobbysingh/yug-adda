@@ -9,22 +9,21 @@ import 'firebase_options.dart';
     ;
 
     try {
-      await Firebase.initializeApp(
-        options: 
-  DefaultFirebaseOptions.currentPlatform,
-      );
-      runApp(const YugAddaApp());
-    
-   } catch (e, stackTrace) {
-     debugPrint('Firebase initialization 
-  failed: $e');
-      debugPrintStack(stackTrace: 
-  stackTrace);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
+  runApp(const YugAddaApp());
+
+} catch (e, stackTrace) {
+   debugPrint(e.toString());
+   debugPrintStack(stackTrace: 
+stackTrace);
+}
      runApp(
        MaterialApp(
          debugShowCheckedModeBanner: 
-  false,
+false,
          home: Scaffold(
            backgroundColor: Colors.white,
            body: Center(
@@ -32,7 +31,7 @@ import 'firebase_options.dart';
               padding: const EdgeInsets.all(24),
               child: Text(
                 'Firebase Initialization Failed\n\n$e',
-   textAlign: TextAlign.center,
+textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.red,
                   fontSize: 16,
