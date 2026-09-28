@@ -396,79 +396,433 @@ class _AuthScreenState extends State<AuthScreen> {
 }
 
 // Home Screen after successful authentication
-class HomeScreen extends StatelessWidget {
+
+  class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int selectedIndex = 0;
+
+  final Color primaryColor = Colors.deepPurple;
+
+  final List<String> menuTitles = [
+    'Dashboard',
+    'Feed',
+    'User Profile',
+    'Chat / Messaging',
+    'Notifications',
+    'Settings',
+  ];
+
+  final List<IconData> menuIcons = [
+    Icons.dashboard_rounded,
+    Icons.dynamic_feed_rounded,
+    Icons.person_rounded,
+    Icons.chat_rounded,
+    Icons.notifications_rounded,
+    Icons.settings_rounded,
+  ];
+
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  Widget dashboardPage() {
     final user = FirebaseAuth.instance.currentUser;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Yug Adda',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-            },
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Card(
+            color: Colors.deepPurple,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Welcome to Yug Adda!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 23,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Hello, ${user?.displayName ?? user?.email ?? 'User'}!',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Connect. Share. Stay Together.',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          const Text(
+            'Dashboard',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.15,
+            children: [
+              dashboardCard(
+                Icons.dynamic_feed,
+                'Feed',
+                'View community posts',
+                1,
+              ),
+              dashboardCard(
+                Icons.person,
+                'Profile',
+                'Your account',
+                2,
+              ),
+              dashboardCard(
+                Icons.chat,
+                'Messages',
+                'Chat with friends',
+                3,
+              ),
+              dashboardCard(
+                Icons.notifications,
+                'Notifications',
+                'Stay updated',
+                4,
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          const Text(
+            'Community Feed',
+            style: TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.forum_outlined,
+                    size: 55,
+                    color: primaryColor,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Welcome to Yug Adda Feed',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Community posts will appear here.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
-      body: Center(
+    );
+  }
+
+  Widget dashboardCard(
+    IconData icon,
+    String title,
+    String subtitle,
+    int index,
+  ) {
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.forum_rounded,
-                size: 90,
-                color: Colors.deepPurple,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Welcome to Yug Adda!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 27,
+              Icon(icon, size: 38, color: primaryColor),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 5),
               Text(
-                'Hello, ${user?.displayName ?? user?.email ?? 'User'}!',
+                subtitle,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'You are successfully logged in.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                },
-                icon: const Icon(Icons.logout),
-                label: const Text('Logout'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget sectionPage(
+    IconData icon,
+    String title,
+    String description,
+  ) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 85,
+              color: primaryColor,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              description,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget selectedPage() {
+    switch (selectedIndex) {
+      case 0:
+        return dashboardPage();
+
+      case 1:
+        return sectionPage(
+          Icons.dynamic_feed,
+          'Community Feed',
+          'Community posts will appear here.',
+        );
+
+      case 2:
+        final user = FirebaseAuth.instance.currentUser;
+
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircleAvatar(
+                radius: 55,
+                child: Icon(Icons.person, size: 65),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                user?.displayName ?? 'Yug Adda User',
+                style: const TextStyle(
+                  fontSize: 23,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(user?.email ?? ''),
+              const SizedBox(height: 10),
+              const Text('Your User Profile'),
+            ],
+          ),
+        );
+
+      case 3:
+        return sectionPage(
+          Icons.chat,
+          'Chat / Messaging',
+          'Your conversations will appear here.',
+        );
+
+      case 4:
+        return sectionPage(
+          Icons.notifications,
+          'Notifications',
+          'Your notifications will appear here.',
+        );
+
+      case 5:
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.settings,
+                size: 75,
+                color: Colors.deepPurple,
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Settings',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton.icon(
+                onPressed: logout,
+                icon: const Icon(Icons.logout),
+                label: const Text('Logout'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 35,
+                    vertical: 15,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
+      default:
+        return dashboardPage();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        title: Text(
+          menuTitles[selectedIndex],
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+            onPressed: logout,
+          ),
+        ],
+      ),
+
+      drawer: Drawer(
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(
+                color: primaryColor,
+              ),
+              accountName: Text(
+                FirebaseAuth.instance.currentUser?.displayName ??
+                    'Yug Adda User',
+              ),
+              accountEmail: Text(
+                FirebaseAuth.instance.currentUser?.email ?? '',
+              ),
+              currentAccountPicture: const CircleAvatar(
+                child: Icon(Icons.person, size: 40),
+              ),
+            ),
+
+            Expanded(
+              child: ListView.builder(
+                itemCount: menuTitles.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    leading: Icon(
+                      menuIcons[index],
+                      color: selectedIndex == index
+                          ? primaryColor
+                          : Colors.grey,
+                    ),
+                    title: Text(menuTitles[index]),
+                    selected: selectedIndex == index,
+                    selectedTileColor: Colors.deepPurple.withValues(
+                      alpha: 0.10,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                      });
+
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+
+            const Divider(),
+
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text('Logout'),
+              onTap: logout,
+            ),
+          ],
+        ),
+      ),
+
+      body: selectedPage(),
     );
   }
 }
