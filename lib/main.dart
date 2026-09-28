@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,9 +5,54 @@ import 'package:firebase_auth/firebase_auth.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+    runApp(const YugAddaApp());
+  } catch (e, stackTrace) {
+    debugPrint('Firebase initialization failed: $e');
+    debugPrintStack(stackTrace: stackTrace);
+    runApp(StartupErrorApp(error: e.toString()));
+  }
+}
 
-  runApp(const YugAddaApp());
+class StartupErrorApp extends StatelessWidget {
+  final String error;
+  const StartupErrorApp({super.key, required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.red, size: 64),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Yug Adda চালু হতে সমস্যা হয়েছে',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Error details:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    SelectableText(error, textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class YugAddaApp extends StatelessWidget {
