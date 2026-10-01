@@ -134,7 +134,15 @@ class _MainPageState extends State<MainPage> {
         icon: const Icon(Icons.notifications_outlined)),
     ]),
     drawer: Drawer(child: SafeArea(child: Column(children: [
-      const DrawerHeader(child: Center(child: Text('Yug Adda', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)))),
+      DrawerHeader(
+  child: Center(
+    child: Image.asset(
+      'yug_adda_logo.jpg',
+      width: 180,
+      fit: BoxFit.contain,
+    ),
+  ),
+),
       for (int i = 0; i < labels.length; i++)
         ListTile(leading: Icon(icons[i]), title: Text(labels[i]), selected: selected == i,
           onTap: () { setState(() => selected = i); Navigator.pop(context); }),
