@@ -137,7 +137,7 @@ class _MainPageState extends State<MainPage> {
       DrawerHeader(
   child: Center(
     child: Image.asset(
-      'yug_adda_logo.jpg',
+      'yug_adda_logo.png.jpg',
       width: 180,
       fit: BoxFit.contain,
     ),
