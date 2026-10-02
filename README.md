@@ -1,4 +1,4 @@
-# Yug Adda — Phase 2 Flutter UI
+# yug_adda — Phase 2 Flutter UI
 
 This package is a runnable Flutter UI foundation for Yug Adda.
 
