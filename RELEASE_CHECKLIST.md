@@ -1,4 +1,4 @@
-# Yug Adda release checklist
+# yug-adda release checklist
 
 - [ ] Choose final Android application ID and iOS bundle ID.
 - [ ] Create Firebase staging and production projects under the owner's Google account.
