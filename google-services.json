@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:621835105918:android:83c02a99c29326fd00ca2f",
         "android_client_info": {
-          "package_name": "Com.Yugshanti.YugAdda"
+          "package_name": "com.yugshanti.yugadda"  (lowercase)
         }
       },
       "oauth_client": [],
