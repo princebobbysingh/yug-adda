@@ -467,14 +467,13 @@ IconButton(
   imageUrl,
   width: double.infinity,
   fit: BoxFit.cover,
+  errorBuilder: (context, error, stack) {
+    return const Padding(
+      padding: EdgeInsets.all(16),
+      child: Text('Image could not be loaded'),
+    );
+  },
 )
-                              errorBuilder: (context, error, stack) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: Text('Image could not be loaded'),
-                                );
-                              },
-                            )
                           else
                             ListTile(
                               leading: const Icon(
