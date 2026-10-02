@@ -1,4 +1,4 @@
-# Yug Adda implementation roadmap
+# yug-adda implementation roadmap
 
 1. Confirm app identifiers, developer accounts, branding assets, and supported minimum OS versions.
 2. Create Firebase projects for staging and production; configure Phone OTP, Google, Apple, and email/password sign-in.
