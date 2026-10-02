@@ -1,4 +1,4 @@
-# Yug Adda Phase 3 — Backend starter
+# yug-adda Phase 3 — Backend starter
 
 Includes Firestore/Storage rules, a callable poll-vote function starter, and Firebase setup notes. This is not yet wired into the Flutter UI and must be tested/reviewed before production.
 
