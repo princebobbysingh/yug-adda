@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'firebase_options.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'cloudinary_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -218,50 +219,283 @@ class DashboardTab extends StatelessWidget {
 
 class FeedTab extends StatefulWidget {
   const FeedTab({super.key});
+
   @override
   State<FeedTab> createState() => _FeedTabState();
 }
+
 class _FeedTabState extends State<FeedTab> {
   final controller = TextEditingController();
+  final picker = ImagePicker();
+
+  XFile? selectedMedia;
+  String? mediaType;
   bool busy = false;
+
   @override
-  void dispose() { controller.dispose(); super.dispose(); }
-  Future<void> post() async {
-    final text = controller.text.trim();
-    if (text.isEmpty) return;
-    setState(() => busy = true);
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> pickMedia(bool video) async {
     try {
-      final u = FirebaseAuth.instance.currentUser!;
+      final file = video
+          ? await picker.pickVideo(source: ImageSource.gallery)
+          : await picker.pickImage(source: ImageSource.gallery);
+
+if (file != null && mounted) {
+        setState(() {
+          selectedMedia = file;
+          mediaType = video ? 'video' : 'image';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Media selection failed: $e')),
+        );
+      }
+    }
+  }
+
+Future<void> post() async {
+    final text = controller.text.trim();
+
+    if (text.isEmpty && selectedMedia == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Write something or select media')),
+      );
+      return;
+    }
+
+    setState(() => busy = true);
+
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+
+String? mediaUrl;
+      String? uploadedType;
+
+      if (selectedMedia != null) {
+        mediaUrl = await CloudinaryService.uploadMedia(selectedMedia!);
+        uploadedType = mediaType;
+      }
+
       await FirebaseFirestore.instance.collection('posts').add({
-        'text': text, 'uid': u.uid, 'name': u.displayName ?? u.email ?? 'Member',
+        'text': text,
+        'uid': user.uid,
+        'name': user.displayName ?? user.email ?? 'Member',
+        'mediaUrl': mediaUrl,
+        'mediaType': uploadedType,
         'createdAt': FieldValue.serverTimestamp(),
       });
-      controller.clear();
-    } catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e'))); }
-    finally { if (mounted) setState(() => busy = false); }
+
+      if (mounted) {
+        controller.clear();
+        setState(() {
+          selectedMedia = null;
+          mediaType = null;
+        });
+
+ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Post published successfully!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Upload failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
   }
+
   @override
-  Widget build(BuildContext context) => Column(children: [
-    Padding(padding: const EdgeInsets.all(12), child: Row(children: [
-      Expanded(child: TextField(controller: controller, decoration: const InputDecoration(hintText: 'Share a mood or update...'))),
-      IconButton.filled(onPressed: busy ? null : post, icon: const Icon(Icons.send)),
-    ])),
-    Expanded(child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance.collection('posts').orderBy('createdAt', descending: true).limit(50).snapshots(),
-      builder: (context, snap) {
-        if (snap.hasError) return const Center(child: Text('Feed error. Check Firestore rules.'));
-        if (!snap.hasData) return const Center(child: CircularProgressIndicator());
-        if (snap.data!.docs.isEmpty) return const Center(child: Text('No posts yet. Be the first!'));
-        return ListView(children: snap.data!.docs.map((doc) {
-          final d = doc.data();
-          return Card(child: ListTile(leading: const CircleAvatar(child: Icon(Icons.person)),
-            title: Text(d['name']?.toString() ?? 'Member'), subtitle: Text(d['text']?.toString() ?? ''),
-            trailing: d['uid'] == FirebaseAuth.instance.currentUser?.uid
-              ? IconButton(icon: const Icon(Icons.delete_outline), onPressed: () => doc.reference.delete()) : null));
-        }).toList());
-      },
-    )),
-  ]);
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              TextField(
+                controller: controller,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  hintText: 'Share a mood or update...',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+
+              if (selectedMedia != null)
+                ListTile(
+                  leading: Icon(
+                    mediaType == 'video'
+                        ? Icons.video_file
+                        : Icons.image,
+                  ),
+                  title: Text(selectedMedia!.name),
+subtitle: Text('Selected ${mediaType ?? 'media'}'),
+                  trailing: IconButton(
+                    onPressed: busy
+                        ? null
+                        : () {
+                            setState(() {
+                              selectedMedia = null;
+                              mediaType = null;
+                            });
+                          },
+                    icon: const Icon(Icons.close),
+                  ),
+                ),
+
+              const SizedBox(height: 8),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: busy ? null : () => pickMedia(false),
+                      icon: const Icon(Icons.photo),
+                      label: const Text('Photo'),
+                    ),
+                  ),
+const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: busy ? null : () => pickMedia(true),
+                      icon: const Icon(Icons.video_library),
+                      label: const Text('Video'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton.filled(
+                    onPressed: busy ? null : post,
+                    icon: busy
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Icon(Icons.send),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+const Divider(),
+
+        Expanded(
+          child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: FirebaseFirestore.instance
+                .collection('posts')
+                .orderBy('createdAt', descending: true)
+                .limit(50)
+                .snapshots(),
+            builder: (context, snap) {
+              if (snap.hasError) {
+                return const Center(
+                  child: Text('Feed error. Check Firestore rules.'),
+                );
+              }
+
+              if (!snap.hasData) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              if (snap.data!.docs.isEmpty) {
+                return const Center(
+                  child: Text('No posts yet. Be the first!'),
+                );
+              }
+
+return ListView(
+                children: snap.data!.docs.map((doc) {
+                  final data = doc.data();
+
+                  final imageUrl = data['mediaUrl']?.toString();
+                  final type = data['mediaType']?.toString();
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListTile(
+                          leading: const CircleAvatar(
+                            child: Icon(Icons.person),
+                          ),
+                          title: Text(
+                            data['name']?.toString() ?? 'Member',
+                          ),
+                          trailing: data['uid'] ==
+                                  FirebaseAuth.instance.currentUser?.uid
+                              ? 
+IconButton(
+                                  icon: const Icon(Icons.delete_outline),
+                                  onPressed: () async {
+                                    await doc.reference.delete();
+                                  },
+                                )
+                              : null,
+                        ),
+
+                        if ((data['text']?.toString() ?? '').isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            child: Text(data['text'].toString()),
+                          ),
+
+                        if (imageUrl != null && imageUrl.isNotEmpty)
+                          if (type == 'image')
+                            Image.network(
+                              imageUrl,
+                              width: double.infinity, double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stack) {
+                                return const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Text('Image could not be loaded'),
+                                );
+                              },
+                            )
+                          else
+                            ListTile(
+                              leading: const Icon(
+                                Icons.play_circle_outline,
+                                size: 36,
+                              ),
+                              title: const Text('Video uploaded'),
+                              subtitle: SelectableText(imageUrl),
+                            ),
+
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class EventsTab extends StatelessWidget {
