@@ -15,7 +15,7 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    runApp(const YugAddaApp());
+    runApp(AuthGate());
   } catch (e) {
     runApp(
       MaterialApp(
