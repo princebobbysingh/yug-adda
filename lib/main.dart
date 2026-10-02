@@ -464,9 +464,10 @@ IconButton(
                         if (imageUrl != null && imageUrl.isNotEmpty)
                           if (type == 'image')
                             Image.network(
-                              imageUrl,
-                              width: double.infinity, double.infinity,
-                              fit: BoxFit.cover,
+  imageUrl,
+  width: double.infinity,
+  fit: BoxFit.cover,
+)
                               errorBuilder: (context, error, stack) {
                                 return const Padding(
                                   padding: EdgeInsets.all(16),
