@@ -4,26 +4,61 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'firebase_options.dart';
+
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const YugAddaApp());
+
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    runApp(const YugAddaApp());
+  } catch (e) {
+    runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          backgroundColor: const Color(0xFF111018),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.redAccent,
+                    size: 60,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Yug Adda চালু হতে সমস্যা হয়েছে',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '$e',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class YugAddaApp extends StatelessWidget {
-  const YugAddaApp({super.key});
-  @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'Yug Adda',
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF7542B8), brightness: Brightness.dark),
-      scaffoldBackgroundColor: const Color(0xFF111018),
-    ),
-    home: const AuthGate(),
-  );
-}
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
